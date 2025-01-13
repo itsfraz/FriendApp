@@ -207,7 +207,7 @@ PORT=5000</code></pre>
 
 <ul>
   <li><strong>Email</strong>:faraj.ansari16@gmail.com</li>
-  <li><strong>GitHub</strong>: <a href="https://github.com/itsfraz">your-username</a></li>
+  <li><strong>GitHub</strong>: <a href="https://github.com/itsfraz">itsfraz</a></li>
 </ul>
 
 ---
