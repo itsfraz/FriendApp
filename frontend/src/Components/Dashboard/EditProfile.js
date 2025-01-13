@@ -15,7 +15,7 @@ function EditProfile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/user/${userId}`, {
+        const response = await axios.get(`https://friendapp-m7b4.onrender.com/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setName(response.data.name);
@@ -40,7 +40,7 @@ function EditProfile() {
 
     try {
       await axios.put(
-        `http://localhost:5000/edit-profile/${userId}`,
+        `https://friendapp-m7b4.onrender.com/edit-profile/${userId}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

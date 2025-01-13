@@ -1,222 +1,3 @@
-// import React, { useContext, useEffect, useState } from 'react';
-// import axios from 'axios';
-// import FriendsList from './FriendList';
-// import FriendRecommendations from './FriendRecommendations';
-// import SearchUsers from './SearchUsers';
-// import PendingFriendRequests from './PendingFriendRequests';
-// import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
-// import SocketContext from '../../context/SocketContext'; // Import the SocketContext
-
-// function Dashboard() {
-//   const [username, setUsername] = useState('');
-//   const [name, setName] = useState('');
-//   const [profilePicture, setProfilePicture] = useState('');
-//   const [requestSent, setRequestSent] = useState(false);
-//   const [notifications, setNotifications] = useState([]); // State for notifications
-//   const navigate = useNavigate();
-//   const userId = localStorage.getItem('userId'); // Get userId from localStorage
-//   const socket = useContext(SocketContext); // Access the Socket.IO connection from context
-
-//   // Notify the server when the user logs in
-//   useEffect(() => {
-//     if (socket && userId) {
-//       // Emit the 'user-login' event to update the user's socketId in the database
-//       socket.emit('user-login', userId);
-//     }
-//   }, [socket, userId]);
-
-//   // Listen for real-time notifications
-//   useEffect(() => {
-//     if (socket) {
-//       // Listen for new friend request notifications
-//       socket.on('new-friend-request', (data) => {
-//         console.log('New friend request received:', data);
-//         setNotifications((prev) => [
-//           ...prev,
-//           { type: 'friend-request', message: data.message, fromUserId: data.fromUserId },
-//         ]);
-//       });
-
-//       // Listen for friend request acceptance notifications
-//       socket.on('friend-request-accepted', (data) => {
-//         console.log('Friend request accepted:', data);
-//         setNotifications((prev) => [
-//           ...prev,
-//           { type: 'friend-request-accepted', message: data.message, toUserId: data.toUserId },
-//         ]);
-//       });
-//     }
-
-//     // Clean up event listeners on unmount
-//     return () => {
-//       if (socket) {
-//         socket.off('new-friend-request');
-//         socket.off('friend-request-accepted');
-//       }
-//     };
-//   }, [socket]);
-
-//   // Display notifications
-//   const renderNotifications = () => {
-//     return notifications.map((notification, index) => (
-//       <div key={index} className="p-2 mb-2 bg-blue-100 rounded-lg">
-//         <p>{notification.message}</p>
-//       </div>
-//     ));
-//   };
-
-//   const handleSignOut = () => {
-//     localStorage.removeItem('token');
-//     localStorage.removeItem('userId');
-//     window.location.href = '/login';
-//   };
-
-//   const handleDeleteProfile = async () => {
-//     if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
-//       try {
-//         const response = await axios.delete(`http://localhost:5000/delete-profile/${userId}`, {
-//           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, // Use token directly
-//         });
-
-//         console.log("Profile deletion response:", response.data);
-
-//         // Clear local storage and redirect to login page
-//         localStorage.removeItem('token');
-//         localStorage.removeItem('userId');
-//         navigate('/login');
-//       } catch (err) {
-//         console.error("Error deleting profile:", err);
-//         alert('Failed to delete profile. Please try again.');
-//       }
-//     }
-//   };
-
-//   // Fetch user data
-//   useEffect(() => {
-//     const fetchUserData = async () => {
-//       try {
-//         console.log("Fetching user data for user ID:", userId);
-
-//         // Fetch user data including name and profilePicture
-//         const response = await axios.get(`http://localhost:5000/user/${userId}`, {
-//           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, // Use token directly
-//         });
-
-//         console.log("User data fetched successfully:", response.data);
-
-//         // Set the user's name, username, and profile picture
-//         setUsername(response.data.username);
-//         setName(response.data.name);
-//         setProfilePicture(response.data.profilePicture);
-//       } catch (error) {
-//         console.error("Error fetching user data:", error);
-//       }
-//     };
-
-//     fetchUserData();
-//   }, [userId]);
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 p-4">
-//       <div className="max-w-7xl mx-auto">
-//         {/* Notifications Section */}
-//         <div className="mb-4">
-//           <h2 className="text-xl font-bold mb-2">Notifications</h2>
-//           {notifications.length > 0 ? (
-//             renderNotifications()
-//           ) : (
-//             <p>No new notifications.</p>
-//           )}
-//         </div>
-
-//         {/* Dashboard Header with Sign-Out Button and User Info */}
-//         <div className="flex flex-col md:flex-row justify-between items-center mb-4 p-4 bg-white rounded-lg shadow-sm">
-//           <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
-//             {profilePicture && (
-//               <img
-//                 src={`http://localhost:5000/${profilePicture}`} // Serve the image from the backend
-//                 alt="Profile"
-//                 className="w-20 h-20 rounded-full object-cover" // Updated size and added object-cover
-//               />
-//             )}
-//             <div className="text-center md:text-left">
-//               <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-//               {username && (
-//                 <>
-//                   <p className="text-gray-600 text-sm">UserName: {username}</p>
-//                   <p className="text-gray-600 text-sm">Name: {name}</p>
-//                 </>
-//               )}
-//             </div>
-//           </div>
-//           {/* Edit Profile and Change Password Buttons */}
-//           <div className="flex space-x-2 mt-2 md:mt-0">
-//             <Link
-//               to="/edit-profile"
-//               className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition text-xs"
-//             >
-//               Edit Profile
-//             </Link>
-//             <Link
-//               to="/change-password"
-//               className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition text-xs"
-//             >
-//               Change Password
-//             </Link>
-//           </div>
-//           {/* Sign Out and Delete Profile Buttons */}
-//           <div className="flex space-x-2 mt-2 md:mt-0">
-//             <button
-//               onClick={handleSignOut}
-//               className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition text-xs"
-//             >
-//               Sign Out
-//             </button>
-//             <button
-//               onClick={handleDeleteProfile}
-//               className="bg-red-700 text-white px-3 py-1 rounded-lg hover:bg-red-800 transition text-xs"
-//             >
-//               Delete Profile
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Search Users Section (Moved to Top) */}
-//         <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
-//           <h2 className="text-xl font-semibold text-gray-700 mb-4">Search Users</h2>
-//           <SearchUsers setRequestSent={setRequestSent} />
-//         </div>
-
-//         {/* Pending Friend Requests and Friend Recommendations in One Column, Friend List in Another Column */}
-//         <div className="flex flex-col md:flex-row gap-4 mb-4">
-//           {/* Left Column: Pending Friend Requests and Friend Recommendations */}
-//           <div className="flex flex-col gap-4 flex-1">
-//             {/* Pending Friend Requests */}
-//             <div className="bg-white p-4 rounded-lg shadow-sm">
-//               <h2 className="text-xl font-semibold text-gray-700 mb-4">Pending Friend Requests</h2>
-//               <PendingFriendRequests requestSent={requestSent} />
-//             </div>
-
-//             {/* Friend Recommendations */}
-//             <div className="bg-white p-4 rounded-lg shadow-sm">
-//               <h2 className="text-xl font-semibold text-gray-700 mb-4">Friend Recommendations</h2>
-//               <FriendRecommendations />
-//             </div>
-//           </div>
-
-//           {/* Right Column: Friend List */}
-//           <div className="bg-white p-4 rounded-lg shadow-sm flex-1">
-//             <h2 className="text-xl font-semibold text-gray-700 mb-4">Your Friends</h2>
-//             <FriendsList />
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Dashboard;
-
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import FriendsList from "./FriendList";
@@ -297,7 +78,7 @@ function Dashboard() {
     ) {
       try {
         const response = await axios.delete(
-          `http://localhost:5000/delete-profile/${userId}`,
+          `https://friendapp-m7b4.onrender.com/delete-profile/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -319,7 +100,7 @@ function Dashboard() {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/user/${userId}`,
+          `https://friendapp-m7b4.onrender.com/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -354,13 +135,13 @@ function Dashboard() {
           <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
             {profilePicture && (
               <img
-                src={`http://localhost:5000/${profilePicture}`}
+                src={`https://friendapp-m7b4.onrender.com/${profilePicture}`}
                 alt="Profile"
                 className="w-20 h-20 rounded-full object-cover"
               />
             )}
             <div className="text-center md:text-left">
-              <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+              <h1 className="text-2xl font-bold text-gray-800">Social</h1>
               {username && (
                 <>
                   <p className="text-gray-600 text-sm">UserName: {username}</p>

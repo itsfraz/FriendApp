@@ -27,7 +27,7 @@ function ChangePassword() {
 
     try {
       await axios.post(
-        `http://localhost:5000/change-password/${userId}`,
+        `https://friendapp-m7b4.onrender.com/change-password/${userId}`,
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

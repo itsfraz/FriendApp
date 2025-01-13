@@ -28,7 +28,7 @@ const FriendRecommendations = memo(() => {
       try {
         console.log('Fetching friend recommendations from the server...'); // Debugging: Check when the API call starts
         const response = await axios.get(
-          `http://localhost:5000/friend-recommendations/${userId}`,
+          `https://friendapp-m7b4.onrender.com/friend-recommendations/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -66,7 +66,7 @@ const FriendRecommendations = memo(() => {
 
       console.log('Sending friend request...'); // Debugging: Check when the friend request is sent
       await axios.post(
-        'http://localhost:5000/send-friend-request',
+        'https://friendapp-m7b4.onrender.com/send-friend-request',
         { fromUserId, toUserId: userId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -104,7 +104,7 @@ const FriendRecommendations = memo(() => {
               <div className="flex items-center">
                 {user.profilePicture ? (
                   <img
-                    src={`http://localhost:5000/${user.profilePicture}`}
+                    src={`https://friendapp-m7b4.onrender.com/${user.profilePicture}`}
                     alt="Profile"
                     className="w-12 h-12 rounded-full mr-3"
                   />

@@ -17,7 +17,7 @@ function PendingFriendRequests({ requestSent }) {
         console.log("Token:", token);
 
         const response = await axios.get(
-          `http://localhost:5000/pending-friend-requests/${userId}`,
+          `https://friendapp-m7b4.onrender.com/pending-friend-requests/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -56,7 +56,7 @@ function PendingFriendRequests({ requestSent }) {
   const handleAccept = async (requestId) => {
     try {
       await axios.post(
-        'http://localhost:5000/respond-friend-request',
+        'https://friendapp-m7b4.onrender.com/respond-friend-request',
         { requestId, status: 'accepted' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -74,7 +74,7 @@ function PendingFriendRequests({ requestSent }) {
   const handleReject = async (requestId) => {
     try {
       await axios.post(
-        'http://localhost:5000/respond-friend-request',
+        'https://friendapp-m7b4.onrender.com/respond-friend-request',
         { requestId, status: 'rejected' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
