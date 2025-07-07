@@ -7,6 +7,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const FriendRequest = require('./models/FriendRequest');
+const Conversation = require('./models/Conversation');
+const Message = require('./models/Message');
 const multer = require('multer');
 const path = require('path');
 const http = require('http');
@@ -119,6 +121,21 @@ io.on('connection', (socket) => {
     } catch (error) {
       console.error('Error during user disconnect cleanup:', error);
     }
+  });
+
+  // Join Chat Room
+  socket.on('join-chat', (conversationId) => {
+    socket.join(conversationId);
+    console.log(`User with socket ID: ${socket.id} joined chat room: ${conversationId}`);
+  });
+
+  // Send Message
+  socket.on('send-message', async (data) => {
+    const { conversationId, sender, text } = data;
+    const message = new Message({ conversationId, sender, text });
+    await message.save();
+
+    io.to(conversationId).emit('receive-message', message);
   });
 });
 
@@ -425,6 +442,69 @@ app.post('/unfriend', async (req, res) => {
     res.status(500).json({ message: 'Something went wrong' }); // Handle server errors
   }
 });
+
+// New Conversation Route
+app.post('/api/conversations', async (req, res) => {
+  try {
+    const { senderId, receiverId } = req.body;
+
+    // Check if a conversation already exists
+    const existingConversation = await Conversation.findOne({
+      members: { $all: [senderId, receiverId] },
+    });
+
+    if (existingConversation) {
+      return res.status(200).json(existingConversation);
+    }
+
+    // If no conversation exists, create a new one
+    const newConversation = new Conversation({
+      members: [senderId, receiverId],
+    });
+
+    const savedConversation = await newConversation.save();
+    res.status(200).json(savedConversation);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Get Conversation of a User
+app.get('/api/conversations/:userId', async (req, res) => {
+  try {
+    const conversation = await Conversation.find({
+      members: { $in: [req.params.userId] },
+    });
+    res.status(200).json(conversation);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Add Message
+app.post('/api/messages', async (req, res) => {
+  const newMessage = new Message(req.body);
+
+  try {
+    const savedMessage = await newMessage.save();
+    res.status(200).json(savedMessage);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Get Messages
+app.get('/api/messages/:conversationId', async (req, res) => {
+  try {
+    const messages = await Message.find({
+      conversationId: req.params.conversationId,
+    });
+    res.status(200).json(messages);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 
 // Fetch User by ID Route
 app.get('/user/:userId', async (req, res) => {

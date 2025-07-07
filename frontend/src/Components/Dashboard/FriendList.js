@@ -72,16 +72,18 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function FriendsList() {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchFriendList = async () => {
       const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
 
       try {
         const response = await axios.get(`https://friendapp-m7b4.onrender.com/friend-list/${userId}`, {
@@ -97,7 +99,19 @@ function FriendsList() {
     };
 
     fetchFriendList();
-  }, []);
+  }, [userId]);
+
+  const handleFriendClick = async (friend) => {
+    try {
+      const response = await axios.post('https://friendapp-m7b4.onrender.com/api/conversations', {
+        senderId: userId,
+        receiverId: friend._id,
+      });
+      navigate(`/chat/${response.data._id}`, { state: { friend } });
+    } catch (err) {
+      console.error('Error creating or finding conversation:', err);
+    }
+  };
 
   if (loading) {
     return <p>Loading friends...</p>;
@@ -112,7 +126,11 @@ function FriendsList() {
       {friends.length > 0 ? (
         <ul>
           {friends.map((friend) => (
-            <li key={friend._id} className="flex items-center mb-4">
+            <li
+              key={friend._id}
+              className="flex items-center mb-4 cursor-pointer hover:bg-gray-200 p-2 rounded-lg"
+              onClick={() => handleFriendClick(friend)}
+            >
               {friend.profilePicture && (
                 <img
                   src={`https://friendapp-m7b4.onrender.com/${friend.profilePicture}`}
@@ -134,4 +152,4 @@ function FriendsList() {
   );
 }
 
-export default FriendsList
+export default FriendsList;

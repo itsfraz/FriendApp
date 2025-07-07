@@ -5,6 +5,7 @@ import Signup from './Components/Auth/Signup';
 import Dashboard from './Components/Dashboard/Dashboard';
 import EditProfile from './Components/Dashboard/EditProfile'; // Import the EditProfile component
 import ChangePassword from './Components/Dashboard/ChangePassword'; // Import the ChangePassword component
+import Chat from './Components/Dashboard/Chat'; // Import the Chat component
 import { SocketProvider } from './context/SocketContext'; // Import the SocketProvider
 
 // PrivateRoute component to protect the Dashboard route
@@ -65,6 +66,16 @@ function App() {
             element={
               <PrivateRoute>
                 <ChangePassword />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Chat route (protected) */}
+          <Route
+            path="/chat/:conversationId"
+            element={
+              <PrivateRoute>
+                <Chat />
               </PrivateRoute>
             }
           />
