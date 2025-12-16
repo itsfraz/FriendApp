@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema({
   location: { type: String, default: '' },
   socketId: { type: String, default: '' }, // Add this field
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 });
 
 module.exports = mongoose.model('User', userSchema);

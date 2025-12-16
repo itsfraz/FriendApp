@@ -673,6 +673,58 @@ app.post('/change-password/:userId', async (req, res) => {
 });
 
 // Start the server
+const crypto = require('crypto');
+
+// Forgot Password Route
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found with this email' });
+    }
+
+    // Generate token
+    const token = crypto.randomBytes(20).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    // In a real app, send email here. For demo, return token.
+    console.log(`Reset Token for ${email}: ${token}`);
+    res.status(200).json({ message: 'Password reset link sent (check console for token)', token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Reset Password Route
+app.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ 
+      resetPasswordToken: token, 
+      resetPasswordExpires: { $gt: Date.now() } 
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password has been reset successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

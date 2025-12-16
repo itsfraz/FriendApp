@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './Components/Auth/Login';
 import Signup from './Components/Auth/Signup';
+import ForgotPassword from './Components/Auth/ForgotPassword';
+import ResetPassword from './Components/Auth/ResetPassword';
 import Dashboard from './Components/Dashboard/Dashboard';
 import EditProfile from './Components/Dashboard/EditProfile'; // Import the EditProfile component
 import ChangePassword from './Components/Dashboard/ChangePassword'; // Import the ChangePassword component
@@ -42,6 +44,12 @@ function App() {
 
           {/* Signup route */}
           <Route path="/signup" element={<Signup />} />
+
+          {/* Forgot Password route */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          {/* Reset Password route */}
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Dashboard route (protected) */}
           <Route
