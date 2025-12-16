@@ -129,14 +129,35 @@ io.on('connection', (socket) => {
     console.log(`User with socket ID: ${socket.id} joined chat room: ${conversationId}`);
   });
 
+  // Typing Indicators
+  socket.on('typing', ({ conversationId, userId }) => {
+    socket.to(conversationId).emit('typing', { conversationId, userId });
+  });
+
+  socket.on('stop-typing', ({ conversationId, userId }) => {
+    socket.to(conversationId).emit('stop-typing', { conversationId, userId });
+  });
+
   // Send Message
   socket.on('send-message', async (data) => {
-    const { conversationId, sender, text } = data;
-    const message = new Message({ conversationId, sender, text });
+    const { conversationId, sender, text, image } = data;
+    const message = new Message({ conversationId, sender, text, image });
     await message.save();
 
     io.to(conversationId).emit('receive-message', message);
+    
+    // Notify receiver if they are not in the chat but online?
+    // (This part matches existing 'receive-message' for notifications, 
+    // but usually notifications are separate if the user isn't locally in the room)
   });
+});
+
+// Chat Image Upload Route
+app.post('/api/chat/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+  res.status(200).json({ filePath: req.file.path });
 });
 
 
@@ -222,10 +243,32 @@ app.get('/search-users', async (req, res) => {
     const users = await User.find({
       username: { $regex: query, $options: 'i' }, // Case-insensitive search
       _id: { $nin: [...friendIds, userId] }, // Exclude the user and their friends
-    }, 'username name profilePicture'); // Return username, name, and profilePicture
+    }, 'username name profilePicture').lean(); // Use .lean() to convert to plain JavaScript objects
 
-    res.status(200).json(users); // Return the list of matching users
+    // Check for pending friend requests
+    const usersWithStatus = await Promise.all(users.map(async (foundUser) => {
+      const request = await FriendRequest.findOne({
+        $or: [
+          { from: userId, to: foundUser._id, status: 'pending' },
+          { from: foundUser._id, to: userId, status: 'pending' }
+        ]
+      });
+
+      let status = 'none';
+      if (request) {
+        if (request.from.toString() === userId) {
+          status = 'sent';
+        } else {
+          status = 'received';
+        }
+      }
+
+      return { ...foundUser, requestStatus: status };
+    }));
+
+    res.status(200).json(usersWithStatus); // Return the list of matching users with request status
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Something went wrong' }); // Handle server errors
   }
 });
@@ -513,8 +556,8 @@ app.get('/user/:userId', async (req, res) => {
   try {
     console.log("Fetching user with ID:", userId); // Debugging
 
-    // Find user by ID and return name, profilePicture, and username
-    const user = await User.findById(userId, 'username name profilePicture');
+    // Find user by ID and return name, profilePicture, username, bio, work, location
+    const user = await User.findById(userId, 'username name profilePicture bio work location');
 
     if (!user) {
       console.log("User not found:", userId); // Debugging
@@ -522,7 +565,7 @@ app.get('/user/:userId', async (req, res) => {
     }
 
     console.log("User fetched successfully:", user); // Debugging
-    res.status(200).json(user); // Return the user object with name, profilePicture, and username
+    res.status(200).json(user); // Return the user object
   } catch (err) {
     console.error("Error fetching user:", err); // Debugging
     res.status(500).json({ message: 'Something went wrong' });
@@ -568,11 +611,11 @@ app.delete('/delete-profile/:userId', async (req, res) => {
 // Profile Update route
 app.put('/edit-profile/:userId', upload.single('profilePicture'), async (req, res) => {
   const { userId } = req.params;
-  const { name, email } = req.body;
+  const { name, email, bio, work, location } = req.body;
   const profilePicture = req.file ? req.file.path : '';
 
   try {
-    const updateData = { name, email };
+    const updateData = { name, email, bio, work, location };
     if (profilePicture) {
       updateData.profilePicture = profilePicture;
     }

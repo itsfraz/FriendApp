@@ -21,7 +21,7 @@ function SearchUsers({ setRequestSent }) {
 
     try {
       const response = await axios.get(
-        `https://friendapp-m7b4.onrender.com/search-users?query=${query}&userId=${userId}`,
+        `http://localhost:5000/search-users?query=${query}&userId=${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -47,7 +47,7 @@ function SearchUsers({ setRequestSent }) {
       }
 
       const response = await axios.post(
-        'https://friendapp-m7b4.onrender.com/send-friend-request',
+        'http://localhost:5000/send-friend-request',
         { fromUserId, toUserId: userId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -56,7 +56,12 @@ function SearchUsers({ setRequestSent }) {
 
       if (response.status === 201) {
         alert('Friend request sent successfully!');
-        setResults((prev) => prev.filter((user) => user._id !== userId)); // Remove the user from search results
+        // Update the user's status in the results list instead of removing them
+        setResults((prev) =>
+          prev.map((user) =>
+            user._id === userId ? { ...user, requestStatus: 'sent' } : user
+          )
+        );
         setRequestSent((prev) => !prev); // Update the pending friend requests list
       } else {
         alert(response.data.message); // Show error message from the backend
@@ -72,56 +77,72 @@ function SearchUsers({ setRequestSent }) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Search Users</h2>
-      <div className="flex flex-col md:flex-row gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Search for users..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+    <div className="w-full relative">
+      <div className="flex flex-row gap-2">
+        <div className="relative flex-1">
+             <input
+               type="text"
+               placeholder="Search..."
+               value={query}
+               onChange={(e) => setQuery(e.target.value)}
+               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+               className="w-full pl-8 md:pl-10 pr-4 py-1.5 md:py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs md:text-sm bg-gray-100 text-gray-800"
+             />
+             <span className="absolute left-2.5 top-2 md:top-2.5 text-xs md:text-base text-gray-500">🔍</span>
+        </div>
         <button
           onClick={handleSearch}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-transform transform hover:scale-105"
+          className="bg-blue-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-full hover:bg-blue-700 transition text-xs md:text-sm font-medium"
           disabled={loading}
         >
-          {loading ? 'Searching...' : 'Search'}
+          {loading ? '...' : <span className="md:inline">Search</span>}
         </button>
       </div>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+      {error && <p className="text-red-500 text-xs absolute top-full mt-1 bg-white p-1 rounded shadow">{error}</p>}
 
-      <ul className="space-y-2">
-        {results.map((user) => (
-          <li key={user._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              {user.profilePicture ? (
-                <img
-                  src={`https://friendapp-m7b4.onrender.com/${user.profilePicture}`}
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                  <span className="text-gray-600 text-sm">No Image</span>
-                </div>
-              )}
-              <div>
-                <p className="font-semibold">{user.name || user.username}</p>
-                <p className="text-sm text-gray-600">@{user.username}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => handleAddFriend(user._id)}
-              className="bg-green-500 text-white px-3 py-1.5 rounded-lg hover:bg-green-600 transition-transform transform hover:scale-105 text-sm"
-            >
-              Add Friend
-            </button>
-          </li>
-        ))}
-      </ul>
+      {results.length > 0 && (
+          <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50 max-h-96 overflow-y-auto">
+             <div className="p-2 border-b bg-gray-50 flex justify-between items-center">
+                <span className="text-xs font-bold text-gray-500">Results</span>
+                <button onClick={() => setResults([])} className="text-xs text-red-500 hover:text-red-700">Close</button>
+             </div>
+             <ul className="divide-y divide-gray-100">
+                {results.map((user) => (
+                  <li key={user._id} className="flex justify-between items-center p-3 hover:bg-gray-50 transition">
+                    <div className="flex items-center">
+                      <img
+                        src={user.profilePicture ? `http://localhost:5000/${user.profilePicture}` : "https://via.placeholder.com/40"}
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full mr-3 object-cover"
+                      />
+                      <div>
+                        <p className="font-semibold text-sm text-gray-800">{user.name || user.username}</p>
+                        <p className="text-xs text-gray-500">@{user.username}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                         if (user.requestStatus === 'none') {
+                            handleAddFriend(user._id);
+                         }
+                      }}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                        user.requestStatus === 'sent'
+                          ? 'bg-gray-100 text-gray-500'
+                          : user.requestStatus === 'received'
+                          ? 'bg-yellow-100 text-yellow-600' 
+                          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                      }`}
+                      disabled={user.requestStatus === 'sent'}
+                    >
+                      {user.requestStatus === 'sent' ? 'Sent' : user.requestStatus === 'received' ? 'Received' : 'Add'}
+                    </button>
+                  </li>
+                ))}
+             </ul>
+          </div>
+      )}
     </div>
   );
 }

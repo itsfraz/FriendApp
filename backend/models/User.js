@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true }, // Add name field
   email: { type: String, required: true, unique: true }, // Add email field
   profilePicture: { type: String, default: '' }, // Add profile picture field (URL or file path)
-  ocketId: { type: String, default: '' }, // Add this field
+  bio: { type: String, default: '' },
+  work: { type: String, default: '' },
+  location: { type: String, default: '' },
+  socketId: { type: String, default: '' }, // Add this field
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 

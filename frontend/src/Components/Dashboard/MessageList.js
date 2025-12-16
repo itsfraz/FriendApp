@@ -4,25 +4,48 @@ const MessageList = ({ messages }) => {
   const userId = localStorage.getItem('userId');
 
   return (
-    <div className="flex-1 p-4 overflow-y-auto">
-      {messages.map((message, index) => (
-        <div
-          key={index}
-          className={`flex ${
-            message.sender === userId ? 'justify-end' : 'justify-start'
-          }`}
-        >
+    <div className="flex-1 p-4 overflow-y-auto bg-white">
+      {messages.map((message, index) => {
+        // Handle cases where message.sender might be an object or string
+        const senderId = typeof message.sender === 'object' ? message.sender._id : message.sender;
+        
+        // Ensure robust comparison by converting to string
+        const isSender = String(senderId) === String(userId);
+        
+        console.log('Debug Message:', {
+             messageText: message.text, 
+             sender: message.sender, 
+             processedSenderId: senderId, 
+             userIdFromStorage: userId, 
+             isSender 
+        });
+
+        return (
           <div
-            className={`p-2 rounded-lg ${
-              message.sender === userId
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-300'
-            }`}
+            key={index}
+            className={`flex mb-2 ${isSender ? 'justify-end' : 'justify-start'}`}
           >
-            {message.text}
+            <div
+              className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm shadow-sm ${
+                isSender
+                  ? 'bg-[#0084ff] text-white rounded-br-sm'
+                  : 'bg-[#e4e6eb] text-black rounded-bl-sm'
+              }`}
+              style={{ wordBreak: 'break-word' }}
+            >
+              {message.image && (
+                <img 
+                  src={`http://localhost:5000/${message.image}`} 
+                  alt="shared" 
+                  className={`max-w-full rounded-lg mb-1 ${message.text ? '' : ''}`}
+                  style={{ maxHeight: '200px' }}
+                />
+              )}
+              {message.text && <p>{message.text}</p>}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

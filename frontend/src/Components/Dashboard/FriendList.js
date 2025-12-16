@@ -15,7 +15,7 @@
 //         console.log("Fetching friend list for user ID:", userId); // Debugging
 
 //         // Fetch the friend list with name and profilePicture
-//         const response = await axios.get(`https://friendapp-m7b4.onrender.com/friend-list/${userId}`, {
+//         const response = await axios.get(`http://localhost:5000/friend-list/${userId}`, {
 //           headers: { Authorization: `Bearer ${token}` },
 //         });
 
@@ -49,7 +49,7 @@
 //             <li key={friend._id} className="flex items-center mb-4">
 //               {friend.profilePicture && (
 //                 <img
-//                   src={`https://friendapp-m7b4.onrender.com/${friend.profilePicture}`} // Serve the image from the backend
+//                   src={`http://localhost:5000/${friend.profilePicture}`} // Serve the image from the backend
 //                   alt="Profile"
 //                   className="w-10 h-10 rounded-full mr-3"
 //                 />
@@ -74,7 +74,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function FriendsList() {
+function FriendsList({ refresh }) {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -86,7 +86,7 @@ function FriendsList() {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get(`https://friendapp-m7b4.onrender.com/friend-list/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/friend-list/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -99,11 +99,11 @@ function FriendsList() {
     };
 
     fetchFriendList();
-  }, [userId]);
+  }, [userId, refresh]);
 
   const handleFriendClick = async (friend) => {
     try {
-      const response = await axios.post('https://friendapp-m7b4.onrender.com/api/conversations', {
+      const response = await axios.post('http://localhost:5000/api/conversations', {
         senderId: userId,
         receiverId: friend._id,
       });
@@ -124,29 +124,36 @@ function FriendsList() {
   return (
     <div>
       {friends.length > 0 ? (
-        <ul>
+        <ul className="space-y-1">
           {friends.map((friend) => (
             <li
               key={friend._id}
-              className="flex items-center mb-4 cursor-pointer hover:bg-gray-200 p-2 rounded-lg"
+              className="flex items-center p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition"
               onClick={() => handleFriendClick(friend)}
             >
-              {friend.profilePicture && (
-                <img
-                  src={`https://friendapp-m7b4.onrender.com/${friend.profilePicture}`}
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full mr-3"
-                />
-              )}
-              <div>
-                <p className="font-semibold">{friend.name}</p>
-                <p className="text-sm text-gray-600">@{friend.username}</p>
+              <div className="relative">
+                {friend.profilePicture ? (
+                  <img
+                    src={`http://localhost:5000/${friend.profilePicture}`}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200" />
+                )}
+                {/* Online Indicator Mockup */}
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+              </div>
+              
+              <div className="ml-3">
+                <p className="font-semibold text-gray-800 text-sm">{friend.name}</p>
+                <p className="text-xs text-gray-500">@{friend.username}</p>
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p>No friends found.</p>
+        <p className="text-gray-500 text-sm text-center py-4">No friends yet.</p>
       )}
     </div>
   );

@@ -6,41 +6,39 @@ const FriendRecommendations = memo(() => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  console.log('FriendRecommendations component rendered'); // Debugging: Check how many times the component renders
+
 
   useEffect(() => {
-    console.log('useEffect triggered: Fetching friend recommendations'); // Debugging: Check when useEffect runs
+
 
     const fetchRecommendations = async () => {
       const userId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
 
-      console.log('User ID:', userId); // Debugging: Check the user ID
-      console.log('Token:', token); // Debugging: Check the token
+
 
       if (!userId || !token) {
-        console.log('User not authenticated'); // Debugging: Check if authentication fails
+
         setError('User not authenticated. Please log in again.');
         setLoading(false);
         return;
       }
 
       try {
-        console.log('Fetching friend recommendations from the server...'); // Debugging: Check when the API call starts
+
         const response = await axios.get(
-          `https://friendapp-m7b4.onrender.com/friend-recommendations/${userId}`,
+          `http://localhost:5000/friend-recommendations/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
 
-        console.log('Friend recommendations fetched:', response.data); // Debugging: Check the fetched data
         setRecommendations(response.data);
       } catch (err) {
         console.error('Error fetching friend recommendations:', err); // Debugging: Check if there's an error
         setError('Failed to fetch recommendations. Please try again.');
       } finally {
-        console.log('Loading set to false'); // Debugging: Check when loading is complete
+
         setLoading(false);
       }
     };
@@ -48,32 +46,30 @@ const FriendRecommendations = memo(() => {
     fetchRecommendations();
   }, []);
 
-  const addFriend = async (userId) => {
-    console.log('Add friend button clicked for user ID:', userId); // Debugging: Check when the add friend button is clicked
+const addFriend = async (userId) => {
 
     try {
       const fromUserId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
 
-      console.log('From User ID:', fromUserId); // Debugging: Check the sender's user ID
-      console.log('Token:', token); // Debugging: Check the token
+
 
       if (!fromUserId || !token) {
-        console.log('User not authenticated'); // Debugging: Check if authentication fails
+
         setError('User not authenticated. Please log in again.');
         return;
       }
 
-      console.log('Sending friend request...'); // Debugging: Check when the friend request is sent
-      await axios.post(
-        'https://friendapp-m7b4.onrender.com/send-friend-request',
+
+      const response = await axios.post(
+        'http://localhost:5000/send-friend-request',
         { fromUserId, toUserId: userId },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      console.log('Friend request sent successfully'); // Debugging: Check if the request is successful
+
       alert('Friend request sent successfully!');
       setRecommendations((prev) => prev.filter((user) => user._id !== userId)); // Remove the user from recommendations
     } catch (err) {
@@ -83,54 +79,53 @@ const FriendRecommendations = memo(() => {
   };
 
   if (loading) {
-    console.log('Loading recommendations...'); // Debugging: Check when loading is true
+
     return <p>Loading recommendations...</p>;
   }
 
   if (error) {
-    console.log('Error:', error); // Debugging: Check when there's an error
+
     return <p className="text-red-500">{error}</p>;
   }
 
-  console.log('Rendering recommendations:', recommendations); // Debugging: Check the recommendations being rendered
+
 
   return (
-    <div>
-      {/* <h2 className="text-xl font-semibold text-gray-700 mb-4">Friend Recommendations</h2> */}
+    <div className="w-full">
       {recommendations.length > 0 ? (
-        <ul>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {recommendations.map((user) => (
-            <li key={user._id} className="flex justify-between items-center mb-4 p-3 bg-white rounded-lg shadow-sm">
-              <div className="flex items-center">
-                {user.profilePicture ? (
-                  <img
-                    src={`https://friendapp-m7b4.onrender.com/${user.profilePicture}`}
-                    alt="Profile"
-                    className="w-12 h-12 rounded-full mr-3"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-3">
-                    <span className="text-gray-600 text-sm">No Image</span>
-                  </div>
-                )}
-                <div>
-                  <p className="font-semibold">{user.name || user.username}</p>
-                  <p className="text-sm text-gray-600">
-                    {user.mutualFriends} mutual friends
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => addFriend(user._id)}
-                className="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-transform transform hover:scale-105 text-sm"
-              >
-                Add Friend
-              </button>
-            </li>
+            <div key={user._id} className="bg-gray-50 rounded-xl p-4 flex flex-col items-center text-center shadow-sm hover:shadow-md transition">
+               <div className="mb-3">
+                 {user.profilePicture ? (
+                   <img
+                     src={`http://localhost:5000/${user.profilePicture}`}
+                     alt="Profile"
+                     className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm"
+                   />
+                 ) : (
+                   <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-sm">
+                     <span className="text-gray-400 text-2xl">?</span>
+                   </div>
+                 )}
+               </div>
+               
+               <h3 className="font-bold text-gray-800 text-base mb-1 truncate w-full">{user.name || user.username}</h3>
+               {user.mutualFriends > 0 && (
+                   <p className="text-xs text-gray-500 mb-3">{user.mutualFriends} mutual friends</p>
+               )}
+               
+               <button
+                 onClick={() => addFriend(user._id)}
+                 className="mt-auto w-full bg-blue-100 text-blue-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-200 transition"
+               >
+                 Add Friend
+               </button>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p className="text-gray-600">No recommendations available.</p>
+        <p className="text-gray-500 text-center py-6">No recommendations available right now.</p>
       )}
     </div>
   );

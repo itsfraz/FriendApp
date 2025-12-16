@@ -13,27 +13,20 @@ function PendingFriendRequests({ requestSent }) {
     useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
-        console.log("Fetching pending requests for user ID:", userId);
-        console.log("Token:", token);
+
 
         const response = await axios.get(
-          `https://friendapp-m7b4.onrender.com/pending-friend-requests/${userId}`,
+          `http://localhost:5000/pending-friend-requests/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-
-        console.log("Full response data:", response);
-        console.log("Pending friend requests fetched:", response.data);
 
         setRequests(response.data);
       } catch (err) {
          console.error('Error fetching pending friend requests:', err);
         if (err.response) {
-          console.error("Response data:", err.response.data);
-          console.error("Response status:", err.response.status);
-          console.error("Response headers:", err.response.headers);
           setError(err.response?.data?.message || 'Failed to fetch pending friend requests. Please try again.');
         } else if (err.request) {
-          console.error("Request:", err.request);
+
           setError('No response received. Please check your network connection.');
         } else {
           console.error('Error message:', err.message);
@@ -46,7 +39,7 @@ function PendingFriendRequests({ requestSent }) {
       if (userId && token)
         fetchPendingRequests();
       else {
-         console.log("User ID or Token not found");
+
         setError("User ID or Token not found");
         setLoading(false);
       }
@@ -56,7 +49,7 @@ function PendingFriendRequests({ requestSent }) {
   const handleAccept = async (requestId) => {
     try {
       await axios.post(
-        'https://friendapp-m7b4.onrender.com/respond-friend-request',
+        'http://localhost:5000/respond-friend-request',
         { requestId, status: 'accepted' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -74,7 +67,7 @@ function PendingFriendRequests({ requestSent }) {
   const handleReject = async (requestId) => {
     try {
       await axios.post(
-        'https://friendapp-m7b4.onrender.com/respond-friend-request',
+        'http://localhost:5000/respond-friend-request',
         { requestId, status: 'rejected' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -98,40 +91,46 @@ function PendingFriendRequests({ requestSent }) {
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Pending Friend Requests</h2>
+    <div className="w-full">
       {requests.length > 0 ? (
-        <ul>
-          {requests.map((request) => {
-            console.log("Request object:", request);
+        <ul className="space-y-4">
+          {requests.map((request) => (
+            <li key={request._id} className="flex flex-col sm:flex-row justify-between items-center bg-gray-50 p-3 rounded-lg">
+              <div className="flex items-center mb-2 sm:mb-0">
+                 {request.from && (
+                    <img 
+                      src={request.from.profilePicture ? `http://localhost:5000/${request.from.profilePicture}` : "https://via.placeholder.com/40"} 
+                      alt="Avatar" 
+                      className="w-10 h-10 rounded-full object-cover mr-3"
+                    />
+                 )}
+                 <div>
+                    <span className="font-semibold text-gray-800 text-sm block">
+                        {request.from ? request.from.name || request.from.username : 'Unknown User'}
+                    </span>
+                    <span className="text-xs text-gray-500">wants to be friends</span>
+                 </div>
+              </div>
 
-            return (
-            <li key={request._id} className="flex justify-between items-center mb-2">
-                <span>
-                {request.from && request.from.username
-                ? request.from.username
-                : 'User Deleted'}
-                </span>
-                <div>
-                  <button
-                    onClick={() => handleAccept(request._id)}
-                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => handleReject(request._id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  >
-                    Reject
-                  </button>
-                </div>
-              </li>
-             );
-          })}
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleAccept(request._id)}
+                  className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => handleReject(request._id)}
+                  className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-300 transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
         </ul>
       ) : (
-        <p>No pending friend requests.</p>
+        <p className="text-gray-500 text-center py-4">No pending requests.</p>
       )}
     </div>
   );

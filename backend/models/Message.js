@@ -13,7 +13,11 @@ const messageSchema = new mongoose.Schema({
   },
   text: {
     type: String,
-    required: true,
+    // required: true, // Made optional because a message might be just an image
+  },
+  image: {
+    type: String, // Path to the uploaded image
+    default: '',
   },
 }, { timestamps: true });
 

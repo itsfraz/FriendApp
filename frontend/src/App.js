@@ -6,6 +6,8 @@ import Dashboard from './Components/Dashboard/Dashboard';
 import EditProfile from './Components/Dashboard/EditProfile'; // Import the EditProfile component
 import ChangePassword from './Components/Dashboard/ChangePassword'; // Import the ChangePassword component
 import Chat from './Components/Dashboard/Chat'; // Import the Chat component
+import { ThemeProvider } from './context/ThemeContext'; // Import ThemeProvider
+
 import { SocketProvider } from './context/SocketContext'; // Import the SocketProvider
 
 // PrivateRoute component to protect the Dashboard route
@@ -25,8 +27,9 @@ function App() {
   }, []);
 
   return (
-    <SocketProvider>
-      <Router>
+    <ThemeProvider>
+      <SocketProvider>
+        <Router>
         <Routes>
           {/* Define the root path to redirect to /dashboard if logged in, else /login */}
           <Route
@@ -84,7 +87,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
-    </SocketProvider>
+      </SocketProvider>
+    </ThemeProvider>
   );
 }
 
