@@ -24,13 +24,23 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: [
+      'https://friend-request-app.netlify.app',
+      'http://localhost:3000'
+    ],
     methods: ['GET', 'POST'],
+    credentials: true
   },
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://friend-request-app.netlify.app',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // MongoDB Connection
