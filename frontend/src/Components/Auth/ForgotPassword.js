@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/forgot-password', { email });
+      const res = await axios.post('https://friendapp-73st.onrender.com/forgot-password', { email });
       setMessage(res.data.message);
       setError('');
       // For demo purposes, we can navigate directly or show the token. 

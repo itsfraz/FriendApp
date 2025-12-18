@@ -30,7 +30,7 @@ function Dashboard() {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/user/${userId}`,
+          `https://friendapp-73st.onrender.com/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -126,7 +126,7 @@ function Dashboard() {
     ) {
       try {
         const response = await axios.delete(
-          `http://localhost:5000/delete-profile/${userId}`,
+          `https://friendapp-73st.onrender.com/delete-profile/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -235,7 +235,7 @@ function Dashboard() {
            <div className={`rounded-xl shadow-sm p-4 hover:shadow-md transition ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
               <div className="flex flex-col items-center">
                  <img
-                  src={profilePicture ? `http://localhost:5000/${profilePicture}` : "https://via.placeholder.com/80"}
+                  src={profilePicture ? `https://friendapp-73st.onrender.com/${profilePicture}` : "https://via.placeholder.com/80"}
                   alt="Profile"
                   className="w-20 h-20 rounded-full object-cover ring-4 ring-gray-100 mb-2"
                  />

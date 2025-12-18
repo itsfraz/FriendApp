@@ -16,7 +16,7 @@ function PendingFriendRequests({ requestSent }) {
 
 
         const response = await axios.get(
-          `http://localhost:5000/pending-friend-requests/${userId}`,
+          `https://friendapp-73st.onrender.com/pending-friend-requests/${userId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -49,7 +49,7 @@ function PendingFriendRequests({ requestSent }) {
   const handleAccept = async (requestId) => {
     try {
       await axios.post(
-        'http://localhost:5000/respond-friend-request',
+        'https://friendapp-73st.onrender.com/respond-friend-request',
         { requestId, status: 'accepted' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -67,7 +67,7 @@ function PendingFriendRequests({ requestSent }) {
   const handleReject = async (requestId) => {
     try {
       await axios.post(
-        'http://localhost:5000/respond-friend-request',
+        'https://friendapp-73st.onrender.com/respond-friend-request',
         { requestId, status: 'rejected' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -99,7 +99,7 @@ function PendingFriendRequests({ requestSent }) {
               <div className="flex items-center mb-2 sm:mb-0">
                  {request.from && (
                     <img 
-                      src={request.from.profilePicture ? `http://localhost:5000/${request.from.profilePicture}` : "https://via.placeholder.com/40"} 
+                      src={request.from.profilePicture ? `https://friendapp-73st.onrender.com/${request.from.profilePicture}` : "https://via.placeholder.com/40"} 
                       alt="Avatar" 
                       className="w-10 h-10 rounded-full object-cover mr-3"
                     />

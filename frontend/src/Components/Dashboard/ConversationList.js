@@ -15,7 +15,7 @@ const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
             newUsers[friendId] = conversation.friendData;
           } else if (!users[friendId]) {
             try {
-              const response = await axios.get(`http://localhost:5000/user/${friendId}`);
+              const response = await axios.get(`https://friendapp-73st.onrender.com/user/${friendId}`);
               newUsers[friendId] = response.data;
             } catch (err) {
               console.error('Error fetching user:', err);
@@ -46,7 +46,7 @@ const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
             >
               {friend?.profilePicture && (
                 <img
-                  src={`http://localhost:5000/${friend.profilePicture}`}
+                  src={`https://friendapp-73st.onrender.com/${friend.profilePicture}`}
                   alt="Profile"
                   className="w-10 h-10 rounded-full mr-3 object-cover"
                 />

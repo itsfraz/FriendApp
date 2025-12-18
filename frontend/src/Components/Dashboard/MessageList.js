@@ -35,7 +35,7 @@ const MessageList = ({ messages }) => {
             >
               {message.image && (
                 <img 
-                  src={`http://localhost:5000/${message.image}`} 
+                  src={`https://friendapp-73st.onrender.com/${message.image}`} 
                   alt="shared" 
                   className={`max-w-full rounded-lg mb-1 ${message.text ? '' : ''}`}
                   style={{ maxHeight: '200px' }}

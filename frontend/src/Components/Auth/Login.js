@@ -20,7 +20,7 @@
 //     try {
 //       console.log("Form data being sent:", formData);
 
-//       const response = await axios.post('http://localhost:5000/login', formData);
+//       const response = await axios.post('https://friendapp-73st.onrender.com/login', formData);
 //       console.log('Login response:', response.data);
 
 //       if (!response.data.token || !response.data.userId) {
@@ -130,7 +130,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', formData);
+      const response = await axios.post('https://friendapp-73st.onrender.com/login', formData);
       if (!response.data.token || !response.data.userId) {
         setError('Invalid response from the server. Please try again.');
         return;

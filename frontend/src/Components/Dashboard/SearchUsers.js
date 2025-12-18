@@ -21,7 +21,7 @@ function SearchUsers({ setRequestSent }) {
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/search-users?query=${query}&userId=${userId}`,
+        `https://friendapp-73st.onrender.com/search-users?query=${query}&userId=${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -47,7 +47,7 @@ function SearchUsers({ setRequestSent }) {
       }
 
       const response = await axios.post(
-        'http://localhost:5000/send-friend-request',
+        'https://friendapp-73st.onrender.com/send-friend-request',
         { fromUserId, toUserId: userId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -112,7 +112,7 @@ function SearchUsers({ setRequestSent }) {
                   <li key={user._id} className="flex justify-between items-center p-3 hover:bg-gray-50 transition">
                     <div className="flex items-center">
                       <img
-                        src={user.profilePicture ? `http://localhost:5000/${user.profilePicture}` : "https://via.placeholder.com/40"}
+                        src={user.profilePicture ? `https://friendapp-73st.onrender.com/${user.profilePicture}` : "https://via.placeholder.com/40"}
                         alt="Profile"
                         className="w-8 h-8 rounded-full mr-3 object-cover"
                       />

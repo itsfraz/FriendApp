@@ -18,7 +18,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/reset-password', { token, newPassword });
+      const res = await axios.post('https://friendapp-73st.onrender.com/reset-password', { token, newPassword });
       setMessage(res.data.message);
       setError('');
       setTimeout(() => {

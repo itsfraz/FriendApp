@@ -15,7 +15,7 @@
 //         console.log("Fetching friend list for user ID:", userId); // Debugging
 
 //         // Fetch the friend list with name and profilePicture
-//         const response = await axios.get(`http://localhost:5000/friend-list/${userId}`, {
+//         const response = await axios.get(`https://friendapp-73st.onrender.com/friend-list/${userId}`, {
 //           headers: { Authorization: `Bearer ${token}` },
 //         });
 
@@ -49,7 +49,7 @@
 //             <li key={friend._id} className="flex items-center mb-4">
 //               {friend.profilePicture && (
 //                 <img
-//                   src={`http://localhost:5000/${friend.profilePicture}`} // Serve the image from the backend
+//                   src={`https://friendapp-73st.onrender.com/${friend.profilePicture}`} // Serve the image from the backend
 //                   alt="Profile"
 //                   className="w-10 h-10 rounded-full mr-3"
 //                 />
@@ -86,7 +86,7 @@ function FriendsList({ refresh }) {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get(`http://localhost:5000/friend-list/${userId}`, {
+        const response = await axios.get(`https://friendapp-73st.onrender.com/friend-list/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -103,7 +103,7 @@ function FriendsList({ refresh }) {
 
   const handleFriendClick = async (friend) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/conversations', {
+      const response = await axios.post('https://friendapp-73st.onrender.com/api/conversations', {
         senderId: userId,
         receiverId: friend._id,
       });
@@ -134,7 +134,7 @@ function FriendsList({ refresh }) {
               <div className="relative">
                 {friend.profilePicture ? (
                   <img
-                    src={`http://localhost:5000/${friend.profilePicture}`}
+                    src={`https://friendapp-73st.onrender.com/${friend.profilePicture}`}
                     alt="Profile"
                     className="w-10 h-10 rounded-full object-cover"
                   />

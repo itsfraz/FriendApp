@@ -34,7 +34,7 @@
 //     formData.append('profilePicture', profilePicture);
 
 //     try {
-//       const response = await axios.post('http://localhost:5000/signup', formData, {
+//       const response = await axios.post('https://friendapp-73st.onrender.com/signup', formData, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -183,7 +183,7 @@ function SignUp() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/signup",
+        "https://friendapp-73st.onrender.com/signup",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

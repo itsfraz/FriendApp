@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:5000'); // Connect to the backend
+    const newSocket = io('https://friendapp-73st.onrender.com'); // Connect to the backend
     setSocket(newSocket);
 
     return () => newSocket.disconnect(); // Cleanup on unmount
