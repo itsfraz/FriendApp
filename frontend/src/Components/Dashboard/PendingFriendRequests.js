@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 function PendingFriendRequests({ requestSent }) {
   const [requests, setRequests] = useState([]);

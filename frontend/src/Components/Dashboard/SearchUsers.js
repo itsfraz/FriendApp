@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 function SearchUsers({ setRequestSent }) {
   const [query, setQuery] = useState('');

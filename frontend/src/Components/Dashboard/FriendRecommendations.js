@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const FriendRecommendations = memo(() => {
   const [recommendations, setRecommendations] = useState([]);
