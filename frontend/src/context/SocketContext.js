@@ -1,5 +1,3 @@
-[file name]: SocketContext.js
-[file content begin]
 import React, { createContext, useEffect, useState, useContext, useRef } from 'react';
 import { io } from 'socket.io-client';
 
@@ -130,4 +128,3 @@ export const SocketProvider = ({ children }) => {
 };
 
 export default SocketContext;
-[file content end]

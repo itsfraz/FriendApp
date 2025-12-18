@@ -13,7 +13,7 @@ const Chat = () => {
   const [currentFriend, setCurrentFriend] = useState(null); 
   const [isFriendTyping, setIsFriendTyping] = useState(false); // Typing indicator state
   const [typingTimeout, setTypingTimeout] = useState(null); // Ref for debounce, but state works too for simple usage
-  const socket = useContext(SocketContext);
+  const { socket } = useContext(SocketContext);
   const userId = localStorage.getItem('userId');
   const { conversationId } = useParams();
   const location = useLocation();

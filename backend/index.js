@@ -25,7 +25,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      'https://friend-request-app.netlify.app',
+      'https://guftugu.netlify.app',
       'http://localhost:3000'
     ],
     methods: ['GET', 'POST'],
@@ -36,7 +36,7 @@ const io = new Server(server, {
 // Middleware
 app.use(cors({
   origin: [
-    'https://friend-request-app.netlify.app',
+    'https://guftugu.netlify.app',
     'http://localhost:3000'
   ],
   credentials: true

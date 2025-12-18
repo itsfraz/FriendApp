@@ -24,7 +24,7 @@ function Dashboard() {
   
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
-  const socket = useContext(SocketContext);
+  const { socket } = useContext(SocketContext);
 
   useEffect(() => {
     const fetchUserData = async () => {
