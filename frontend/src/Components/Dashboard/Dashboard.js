@@ -125,7 +125,7 @@ function Dashboard() {
       )
     ) {
       try {
-        const response = await axios.delete(
+        await axios.delete(
           `https://friendapp-73st.onrender.com/delete-profile/${userId}`,
           {
             headers: {

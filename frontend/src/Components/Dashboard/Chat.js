@@ -72,7 +72,7 @@ const Chat = () => {
         }
       }
     }
-  }, [conversationId, conversations, location.state, userId]);
+  }, [conversationId, conversations, location.state, userId, currentChat?._id]);
 
   useEffect(() => {
     if (socket) {

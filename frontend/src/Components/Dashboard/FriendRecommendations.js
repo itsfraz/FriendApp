@@ -61,7 +61,7 @@ const addFriend = async (userId) => {
       }
 
 
-      const response = await axios.post(
+      await axios.post(
         'https://friendapp-73st.onrender.com/send-friend-request',
         { fromUserId, toUserId: userId },
         {

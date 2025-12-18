@@ -37,6 +37,7 @@ const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
           const friendId = conversation.members.find((member) => member !== userId);
           const friend = users[friendId];
 
+          return (
             <li
               key={conversation._id}
               className={`flex items-center mb-4 cursor-pointer p-2 rounded-lg transition-colors ${
@@ -56,6 +57,7 @@ const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
                 <p className="text-sm text-gray-600">@{friend?.username}</p>
               </div>
             </li>
+          );
         })}
       </ul>
     </div>
