@@ -26,6 +26,7 @@ const io = new Server(server, {
   cors: {
     origin: [
       'https://guftugu.netlify.app',
+      'https://mybatt.netlify.app',
       'http://localhost:3000'
     ],
     methods: ['GET', 'POST'],
@@ -37,6 +38,7 @@ const io = new Server(server, {
 app.use(cors({
   origin: [
     'https://guftugu.netlify.app',
+    'https://mybatt.netlify.app',
     'http://localhost:3000'
   ],
   credentials: true
