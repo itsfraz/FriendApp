@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://friendapp-73st.onrender.com/forgot-password', { email });
+      const res = await axios.post(`${API_URL}/forgot-password`, { email });
       setMessage(res.data.message);
       setError('');
       // For demo purposes, we can navigate directly or show the token. 

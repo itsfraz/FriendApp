@@ -1,4 +1,5 @@
 import React from 'react';
+import { API_URL } from '../../config';
 
 const MessageList = ({ messages }) => {
   const userId = localStorage.getItem('userId');
@@ -35,7 +36,7 @@ const MessageList = ({ messages }) => {
             >
               {message.image && (
                 <img 
-                  src={`https://friendapp-73st.onrender.com/${message.image}`} 
+                  src={`${API_URL}/${message.image}`} 
                   alt="shared" 
                   className={`max-w-full rounded-lg mb-1 ${message.text ? '' : ''}`}
                   style={{ maxHeight: '200px' }}

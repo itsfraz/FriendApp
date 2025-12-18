@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -27,7 +28,7 @@ function ChangePassword() {
 
     try {
       await axios.post(
-        `https://friendapp-73st.onrender.com/change-password/${userId}`,
+        `${API_URL}/change-password/${userId}`,
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

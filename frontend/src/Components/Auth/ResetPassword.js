@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -18,7 +19,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await axios.post('https://friendapp-73st.onrender.com/reset-password', { token, newPassword });
+      const res = await axios.post(`${API_URL}/reset-password`, { token, newPassword });
       setMessage(res.data.message);
       setError('');
       setTimeout(() => {

@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState, useContext, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { API_URL } from '../config';
 
 const SocketContext = createContext();
 
@@ -14,10 +15,10 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     console.log('🚀 Initializing socket connection...');
-    console.log('🌐 Connecting to:', 'https://friendapp-73st.onrender.com');
+    console.log('🌐 Connecting to:', API_URL);
     
     // Create socket connection
-    const newSocket = io('https://friendapp-73st.onrender.com', {
+    const newSocket = io(API_URL, {
       // Transport configuration
       transports: ['websocket', 'polling'],
       upgrade: true,

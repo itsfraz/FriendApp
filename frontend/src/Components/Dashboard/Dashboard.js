@@ -7,6 +7,7 @@ import PendingFriendRequests from "./PendingFriendRequests";
 import { useNavigate, Link } from "react-router-dom";
 import SocketContext from "../../context/SocketContext";
 import { useTheme } from "../../context/ThemeContext";
+import { API_URL } from '../../config';
 
 function Dashboard() {
   const [username, setUsername] = useState("");
@@ -30,7 +31,7 @@ function Dashboard() {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `https://friendapp-73st.onrender.com/user/${userId}`,
+          `${API_URL}/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -126,7 +127,7 @@ function Dashboard() {
     ) {
       try {
         await axios.delete(
-          `https://friendapp-73st.onrender.com/delete-profile/${userId}`,
+          `${API_URL}/delete-profile/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -235,7 +236,7 @@ function Dashboard() {
            <div className={`rounded-xl shadow-sm p-4 hover:shadow-md transition ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
               <div className="flex flex-col items-center">
                  <img
-                  src={profilePicture ? `https://friendapp-73st.onrender.com/${profilePicture}` : "https://via.placeholder.com/80"}
+                  src={profilePicture ? `${API_URL}/${profilePicture}` : "https://via.placeholder.com/80"}
                   alt="Profile"
                   className="w-20 h-20 rounded-full object-cover ring-4 ring-gray-100 mb-2"
                  />

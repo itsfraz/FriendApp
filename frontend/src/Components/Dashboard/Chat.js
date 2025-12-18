@@ -5,6 +5,7 @@ import SocketContext from '../../context/SocketContext';
 import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import { API_URL } from '../../config';
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);
@@ -28,7 +29,7 @@ const Chat = () => {
                 setCurrentFriend(location.state.friend);
              } else {
                 try {
-                   const res = await axios.get(`https://friendapp-73st.onrender.com/user/${friendId}`);
+                   const res = await axios.get(`${API_URL}/user/${friendId}`);
                    setCurrentFriend(res.data);
                 } catch (err) {
                    console.error("Error fetching friend details:", err);
@@ -43,7 +44,7 @@ const Chat = () => {
   useEffect(() => {
     const getConversations = async () => {
       try {
-        const res = await axios.get(`https://friendapp-73st.onrender.com/api/conversations/${userId}`);
+        const res = await axios.get(`${API_URL}/api/conversations/${userId}`);
         setConversations(res.data);
       } catch (err) {
         console.log(err);
@@ -109,7 +110,7 @@ const Chat = () => {
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const res = await axios.get(`https://friendapp-73st.onrender.com/api/messages/${currentChat?._id}`);
+        const res = await axios.get(`${API_URL}/api/messages/${currentChat?._id}`);
         setMessages(res.data);
       } catch (err) {
         console.log(err);
@@ -142,7 +143,7 @@ const Chat = () => {
        const formData = new FormData();
        formData.append('image', image);
        try {
-          const res = await axios.post('https://friendapp-73st.onrender.com/api/chat/upload', formData, {
+          const res = await axios.post(`${API_URL}/api/chat/upload`, formData, {
              headers: { 'Content-Type': 'multipart/form-data' }
           });
           imagePath = res.data.filePath;
@@ -180,7 +181,7 @@ const Chat = () => {
                {currentFriend && (
                  <>
                    <img
-                     src={currentFriend.profilePicture ? `https://friendapp-73st.onrender.com/${currentFriend.profilePicture}` : "https://via.placeholder.com/40"}
+                     src={currentFriend.profilePicture ? `${API_URL}/${currentFriend.profilePicture}` : "https://via.placeholder.com/40"}
                      alt="Profile"
                      className="w-10 h-10 rounded-full object-cover mr-3"
                    />

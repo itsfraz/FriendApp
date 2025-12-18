@@ -27,7 +27,7 @@ const FriendRecommendations = memo(() => {
       try {
 
         const response = await axios.get(
-          `https://friendapp-73st.onrender.com/friend-recommendations/${userId}`,
+          `${API_URL}/friend-recommendations/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -62,7 +62,7 @@ const addFriend = async (userId) => {
 
 
       await axios.post(
-        'https://friendapp-73st.onrender.com/send-friend-request',
+        `${API_URL}/send-friend-request`,
         { fromUserId, toUserId: userId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -99,7 +99,7 @@ const addFriend = async (userId) => {
                <div className="mb-3">
                  {user.profilePicture ? (
                    <img
-                     src={`https://friendapp-73st.onrender.com/${user.profilePicture}`}
+                     src={`${API_URL}/${user.profilePicture}`}
                      alt="Profile"
                      className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm"
                    />

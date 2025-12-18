@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 
 const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
   const [users, setUsers] = useState({});
@@ -15,7 +16,7 @@ const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
             newUsers[friendId] = conversation.friendData;
           } else if (!users[friendId]) {
             try {
-              const response = await axios.get(`https://friendapp-73st.onrender.com/user/${friendId}`);
+              const response = await axios.get(`${API_URL}/user/${friendId}`);
               newUsers[friendId] = response.data;
             } catch (err) {
               console.error('Error fetching user:', err);
@@ -47,7 +48,7 @@ const ConversationList = ({ conversations, setCurrentChat, currentChat }) => {
             >
               {friend?.profilePicture && (
                 <img
-                  src={`https://friendapp-73st.onrender.com/${friend.profilePicture}`}
+                  src={`${API_URL}/${friend.profilePicture}`}
                   alt="Profile"
                   className="w-10 h-10 rounded-full mr-3 object-cover"
                 />

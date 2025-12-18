@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../../config';
 
 function EditProfile() {
   const [name, setName] = useState('');
@@ -18,7 +19,7 @@ function EditProfile() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`https://friendapp-73st.onrender.com/user/${userId}`, {
+        const response = await axios.get(`${API_URL}/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setName(response.data.name);
@@ -49,7 +50,7 @@ function EditProfile() {
 
     try {
       await axios.put(
-        `https://friendapp-73st.onrender.com/edit-profile/${userId}`,
+        `${API_URL}/edit-profile/${userId}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
