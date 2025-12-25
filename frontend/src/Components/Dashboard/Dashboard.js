@@ -8,6 +8,7 @@ import { useNavigate, Link } from "react-router-dom";
 import SocketContext from "../../context/SocketContext";
 import { useTheme } from "../../context/ThemeContext";
 import { API_URL } from '../../config';
+import echoLogo from '../../assets/echo_logo.png';
 
 function Dashboard() {
   const [username, setUsername] = useState("");
@@ -151,14 +152,15 @@ function Dashboard() {
       <nav className={`px-4 py-2 shadow-sm sticky top-0 z-50 flex items-center justify-between h-16 transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
         {/* Logo Section */}
         {/* Logo Section - Hides text on small screens to save space for search */}
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 cursor-pointer hidden md:block" onClick={() => navigate('/')}>
-            SocialApp
-          </h1>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 cursor-pointer md:hidden" onClick={() => navigate('/')}>
-            SA
-          </h1>
-        </div>
+          <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
+            <img src={echoLogo} alt="Echo Logo" className="w-8 h-8 mr-2" />
+            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 hidden md:block">
+              Echo
+            </h1>
+            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 md:hidden">
+              Echo
+            </h1>
+          </div>
 
         {/* Search Bar - Hidden on small screens */}
         {/* Search Bar - Responsive */}
