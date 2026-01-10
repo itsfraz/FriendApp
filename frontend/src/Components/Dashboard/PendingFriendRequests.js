@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
+import toast from 'react-hot-toast';
 
 function PendingFriendRequests({ requestSent }) {
   const [requests, setRequests] = useState([]);
@@ -54,14 +55,14 @@ function PendingFriendRequests({ requestSent }) {
         { requestId, status: 'accepted' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert('Friend request accepted!');
+      toast.success('Friend request accepted!');
       setRequests((prevRequests) =>
           prevRequests.filter((request) => request._id !== requestId)
       );
         setRequestStatusChanged(prev => !prev);
     } catch (err) {
       console.error('Error accepting friend request:', err);
-      alert('Failed to accept friend request. Please try again.');
+      toast.error('Failed to accept friend request. Please try again.');
     }
   };
 
@@ -72,14 +73,14 @@ function PendingFriendRequests({ requestSent }) {
         { requestId, status: 'rejected' },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert('Friend request rejected!');
+      toast.success('Friend request rejected!');
         setRequests((prevRequests) =>
           prevRequests.filter((request) => request._id !== requestId)
       );
        setRequestStatusChanged(prev => !prev);
     } catch (err) {
       console.error('Error rejecting friend request:', err);
-      alert('Failed to reject friend request. Please try again.');
+      toast.error('Failed to reject friend request. Please try again.');
     }
   };
 

@@ -8,6 +8,7 @@ import { ThemeProvider } from './context/ThemeContext'; // Import ThemeProvider
 import { SocketProvider } from './context/SocketContext'; // Import the SocketProvider
 import { HelmetProvider } from 'react-helmet-async';
 import ErrorBoundary from './Components/ErrorBoundary';
+import { Toaster } from 'react-hot-toast';
 
 // Lazy load components for performance
 const Dashboard = lazy(() => import('./Components/Dashboard/Dashboard'));
@@ -43,6 +44,29 @@ function App() {
       <ThemeProvider>
         <SocketProvider>
           <Router>
+            <Toaster position="top-right" reverseOrder={false} toastOptions={{
+              className: '',
+              style: {
+                background: 'rgba(255, 255, 255, 0.8)',
+                color: '#333',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10B981',
+                  secondary: 'white',
+                },
+              },
+              error: {
+                 iconTheme: {
+                  primary: '#EF4444', 
+                  secondary: 'white',
+                },
+              },
+            }}/>
             <ErrorBoundary>
               <Suspense fallback={<Loading />}>
                 <Routes>

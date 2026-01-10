@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { API_URL } from '../../config';
+import toast from 'react-hot-toast';
 
 const FriendRecommendations = memo(() => {
   const queryClient = useQueryClient();
@@ -45,13 +46,13 @@ const FriendRecommendations = memo(() => {
     },
     onError: (err, newTodo, context) => {
       queryClient.setQueryData(['friendRecommendations', userId], context.previousRecommendations);
-      alert('Failed to send friend request. Please try again.');
+      toast.error('Failed to send friend request. Please try again.');
     },
     onSettled: () => {
       queryClient.invalidateQueries(['friendRecommendations', userId]);
     },
     onSuccess: () => {
-       alert('Friend request sent successfully!');
+       toast.success('Friend request sent successfully!');
     }
   });
 

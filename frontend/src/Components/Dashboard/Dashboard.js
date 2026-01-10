@@ -16,6 +16,7 @@ import { API_URL } from '../../config';
 import echoLogo from '../../assets/echo_logo.png';
 import { logout as logoutService } from '../../Services/authService';
 import { Helmet } from 'react-helmet-async';
+import toast from 'react-hot-toast';
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -57,6 +58,7 @@ function Dashboard() {
             message: data.message,
             fromUserId: data.fromUserId,
         }));
+        toast(data.message, { icon: '👋' });
       });
 
       socket.on("friend-request-accepted", (data) => {
@@ -65,6 +67,7 @@ function Dashboard() {
             message: data.message,
             toUserId: data.toUserId,
         }));
+        toast.success(data.message);
         // Ideally dispatch fetchFriends here if FriendsList is listening to store
         // or re-fetch friend list
       });
@@ -121,7 +124,7 @@ function Dashboard() {
         navigate("/login");
       } catch (err) {
         console.error("Error deleting profile:", err);
-        alert("Failed to delete profile. Please try again.");
+        toast.error("Failed to delete profile. Please try again.");
       }
     }
   };

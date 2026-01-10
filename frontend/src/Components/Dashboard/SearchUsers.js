@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
+import toast from 'react-hot-toast';
 
 function SearchUsers({ setRequestSent }) {
   const [query, setQuery] = useState('');
@@ -56,7 +57,7 @@ function SearchUsers({ setRequestSent }) {
       );
 
       if (response.status === 201) {
-        alert('Friend request sent successfully!');
+        toast.success('Friend request sent successfully!');
         // Update the user's status in the results list instead of removing them
         setResults((prev) =>
           prev.map((user) =>
@@ -65,14 +66,14 @@ function SearchUsers({ setRequestSent }) {
         );
         setRequestSent((prev) => !prev); // Update the pending friend requests list
       } else {
-        alert(response.data.message); // Show error message from the backend
+        toast.error(response.data.message); // Show error message from the backend
       }
     } catch (err) {
       console.error('Error sending friend request:', err);
       if (err.response) {
-        alert(err.response.data.message); // Show error message from the backend
+        toast.error(err.response.data.message); // Show error message from the backend
       } else {
-        alert('Failed to send friend request. Please try again.');
+        toast.error('Failed to send friend request. Please try again.');
       }
     }
   };

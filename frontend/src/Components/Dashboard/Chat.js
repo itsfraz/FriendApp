@@ -6,6 +6,7 @@ import ConversationList from './ConversationList';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { API_URL } from '../../config';
+import toast from 'react-hot-toast';
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);
@@ -183,6 +184,7 @@ const Chat = () => {
           imagePath = res.data.filePath;
        } catch (err) {
           console.error("Image upload failed", err);
+          toast.error("Failed to upload image");
           return; // Stop if upload fails
        }
     }
