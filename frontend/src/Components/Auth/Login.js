@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { login } from '../../Services/authService';
 import { useNavigate, Link } from 'react-router-dom';
 import { API_URL } from '../../config';
+
+import { Helmet } from 'react-helmet-async';
 
 function Login() {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -17,7 +19,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_URL}/login`, formData);
+      const response = await login(formData);
       if (!response.data.token || !response.data.userId) {
         setError('Invalid response from the server. Please try again.');
         return;
@@ -39,6 +41,10 @@ function Login() {
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-50 overflow-hidden">
+      <Helmet>
+        <title>Login - Echo</title>
+        <meta name="description" content="Login to Echo Chat App" />
+      </Helmet>
       <div className="flex w-full h-full max-w-[1600px] shadow-2xl rounded-none md:rounded-2xl overflow-hidden bg-white">
         
         {/* Left Side - Visual & Branding (Hidden on mobile) */}

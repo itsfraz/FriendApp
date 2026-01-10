@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
+  refreshToken: { type: String }, // For refresh token rotation
 });
 
 module.exports = mongoose.model('User', userSchema);

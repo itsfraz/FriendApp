@@ -13,6 +13,7 @@ const multer = require('multer');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const cookieParser = require('cookie-parser');
 
 // Load environment variables
 dotenv.config();
@@ -44,6 +45,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -264,15 +266,93 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' }); // Return error if password is incorrect
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h', // Token expires in 1 hour
+    // Generate Access Token (Short-lived)
+    const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '15m', 
     });
 
-    res.status(200).json({ token, userId: user._id }); // Return token and user ID
+    // Generate Refresh Token (Long-lived)
+    const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    // Save Refresh Token to Database (Rotation Strategy)
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // Send Refresh Token as HttpOnly Cookie
+    res.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: 'Strict', // or 'None' if cross-site
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(200).json({ token: accessToken, userId: user._id }); // Return access token and user ID
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Something went wrong' }); // Handle server errors
   }
+});
+
+// Refresh Token Route
+app.get('/refresh-token', async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
+
+  const refreshToken = cookies.jwt;
+
+  try {
+    const user = await User.findOne({ refreshToken });
+    if (!user) return res.status(403).json({ message: 'Forbidden' }); // Detection of token reuse could be implemented here
+
+    jwt.verify(refreshToken, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err || user._id.toString() !== decoded.userId) return res.status(403).json({ message: 'Forbidden' });
+
+      // Rotation: Generate new tokens
+      const accessToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+      const newRefreshToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+      // Save new Refresh Token
+      user.refreshToken = newRefreshToken;
+      await user.save();
+
+      // Send new Refresh Token cookie
+      res.cookie('jwt', newRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.json({ token: accessToken });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// Logout Route
+app.post('/logout', async (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.sendStatus(204); // No content
+
+  const refreshToken = cookies.jwt;
+
+  // Is refreshToken in db?
+  const user = await User.findOne({ refreshToken });
+  if (!user) {
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'Strict', secure: process.env.NODE_ENV === 'production' });
+    return res.sendStatus(204);
+  }
+
+  // Delete refreshToken in db
+  user.refreshToken = '';
+  await user.save();
+
+  res.clearCookie('jwt', { httpOnly: true, sameSite: 'Strict', secure: process.env.NODE_ENV === 'production' });
+  res.sendStatus(204);
 });
 
 // Search Users Route

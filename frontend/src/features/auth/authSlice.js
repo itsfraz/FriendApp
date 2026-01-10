@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../../Services/authService';
 import { API_URL } from '../../config';
 
 // Thunk to fetch user profile
@@ -7,10 +7,8 @@ export const fetchUserProfile = createAsyncThunk(
   'auth/fetchUserProfile',
   async (userId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Token is attached by interceptor in authService
+      const response = await api.get(`/user/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch user profile');

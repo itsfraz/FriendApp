@@ -14,6 +14,8 @@ import SocketContext from "../../context/SocketContext";
 import { useTheme } from "../../context/ThemeContext";
 import { API_URL } from '../../config';
 import echoLogo from '../../assets/echo_logo.png';
+import { logout as logoutService } from '../../Services/authService';
+import { Helmet } from 'react-helmet-async';
 
 function Dashboard() {
   const dispatch = useDispatch();
@@ -87,8 +89,13 @@ function Dashboard() {
 
   // ... (keep handler functions) ...
 
-  const handleSignOut = () => {
-    dispatch(logout());
+  const handleSignOut = async () => {
+    try {
+        await logoutService(); // Clear cookie on server
+    } catch (e) {
+        console.error("Logout failed", e);
+    }
+    dispatch(logout()); // Clear redux
     window.location.href = "/login";
   };
 
@@ -121,6 +128,11 @@ function Dashboard() {
 
   return (
     <div className={`min-h-screen font-sans pb-16 md:pb-0 transition-colors duration-300 ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white' : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-black'}`}>
+      <Helmet>
+        <title>Dashboard - Echo</title>
+        <meta name="description" content="Echo Dashboard - Connect with friends and chat." />
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+      </Helmet>
       {/* Top Navigation Bar */}
       <nav className={`px-4 py-2 shadow-sm sticky top-0 z-50 flex items-center justify-between h-16 transition-colors duration-300 backdrop-blur-md border-b border-white/10 ${theme === 'dark' ? 'bg-glass-dark text-white' : 'bg-glass-light/80 text-gray-800'}`}>
         {/* Logo Section */}
