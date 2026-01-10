@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../../Services/authService';
 import { useParams, useLocation } from 'react-router-dom';
 import SocketContext from '../../context/SocketContext';
 import ConversationList from './ConversationList';
@@ -30,7 +30,7 @@ const Chat = () => {
                 setCurrentFriend(location.state.friend);
              } else {
                 try {
-                   const res = await axios.get(`${API_URL}/user/${friendId}`);
+                   const res = await api.get(`/user/${friendId}`);
                    setCurrentFriend(res.data);
                 } catch (err) {
                    console.error("Error fetching friend details:", err);
@@ -46,7 +46,7 @@ const Chat = () => {
     const getConversations = async () => {
       setConversationsLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/api/conversations/${userId}`);
+        const res = await api.get(`/api/conversations/${userId}`);
         setConversations(res.data);
       } catch (err) {
         console.log(err);
@@ -139,7 +139,7 @@ const Chat = () => {
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/messages/${currentChat?._id}`);
+        const res = await api.get(`/api/messages/${currentChat?._id}`);
         setMessages(res.data);
         
         // Mark messages as read when entering the chat
@@ -177,7 +177,7 @@ const Chat = () => {
        const formData = new FormData();
        formData.append('image', image);
        try {
-          const res = await axios.post(`${API_URL}/api/chat/upload`, formData, {
+          const res = await api.post(`/api/chat/upload`, formData, {
              headers: { 'Content-Type': 'multipart/form-data' }
           });
           imagePath = res.data.filePath;

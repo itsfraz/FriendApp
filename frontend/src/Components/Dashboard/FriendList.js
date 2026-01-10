@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '../../Services/authService';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFriends } from '../../features/friends/friendsSlice';
@@ -20,7 +20,7 @@ function FriendsList() {
 
   const handleFriendClick = async (friend) => {
     try {
-      const response = await axios.post(`${API_URL}/api/conversations`, {
+      const response = await api.post(`/api/conversations`, {
         senderId: userId,
         receiverId: friend._id,
       });

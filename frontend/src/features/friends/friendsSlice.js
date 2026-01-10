@@ -1,15 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../../Services/authService';
 import { API_URL } from '../../config';
 
 export const fetchFriends = createAsyncThunk(
   'friends/fetchFriends',
   async (userId, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/friend-list/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // api instance automatically adds Authorization header
+      const response = await api.get(`/friend-list/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch friends');
