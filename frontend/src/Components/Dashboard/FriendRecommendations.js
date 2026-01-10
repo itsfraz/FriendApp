@@ -55,17 +55,26 @@ const FriendRecommendations = memo(() => {
     }
   });
 
-  if (isLoading) {
-    return <p>Loading recommendations...</p>;
-  }
-
   if (isError) {
     return <p className="text-red-500">{error.message || 'Failed to fetch recommendations.'}</p>;
   }
 
   return (
     <div className="w-full">
-      {recommendations.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 flex flex-col items-center text-center shadow-sm h-64 border border-white/20 backdrop-blur-sm">
+               <div className="mb-3 w-full flex justify-center">
+                 <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+               </div>
+               <div className="w-3/4 h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2 animate-pulse mx-auto"></div>
+               <div className="w-1/2 h-3 bg-gray-200 dark:bg-gray-700 rounded mb-4 animate-pulse mx-auto"></div>
+               <div className="mt-auto w-full h-9 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+      ) : recommendations.length > 0 ? (
         <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" layout>
           <AnimatePresence>
             {recommendations.map((user) => (

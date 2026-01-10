@@ -9,6 +9,7 @@ import { API_URL } from '../../config';
 
 const Chat = () => {
   const [conversations, setConversations] = useState([]);
+  const [conversationsLoading, setConversationsLoading] = useState(true);
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [currentFriend, setCurrentFriend] = useState(null); 
@@ -43,11 +44,14 @@ const Chat = () => {
 
   useEffect(() => {
     const getConversations = async () => {
+      setConversationsLoading(true);
       try {
         const res = await axios.get(`${API_URL}/api/conversations/${userId}`);
         setConversations(res.data);
       } catch (err) {
         console.log(err);
+      } finally {
+        setConversationsLoading(false);
       }
     };
     getConversations();
@@ -200,6 +204,7 @@ const Chat = () => {
           conversations={conversations}
           setCurrentChat={setCurrentChat}
           currentChat={currentChat}
+          isLoading={conversationsLoading}
         />
       </div>
       <div className="w-3/4 flex flex-col">
