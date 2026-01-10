@@ -14,6 +14,7 @@ const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const cookieParser = require('cookie-parser');
+const errorHandler = require('./middleware/errorMiddleware');
 
 // Load environment variables
 dotenv.config();
@@ -849,6 +850,9 @@ app.post('/reset-password', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// Error Handling Middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

@@ -7,6 +7,7 @@ import ResetPassword from './Components/Auth/ResetPassword';
 import { ThemeProvider } from './context/ThemeContext'; // Import ThemeProvider
 import { SocketProvider } from './context/SocketContext'; // Import the SocketProvider
 import { HelmetProvider } from 'react-helmet-async';
+import ErrorBoundary from './Components/ErrorBoundary';
 
 // Lazy load components for performance
 const Dashboard = lazy(() => import('./Components/Dashboard/Dashboard'));
@@ -42,70 +43,72 @@ function App() {
       <ThemeProvider>
         <SocketProvider>
           <Router>
-            <Suspense fallback={<Loading />}>
-            <Routes>
-              {/* Define the root path to redirect to /dashboard if logged in, else /login */}
-              <Route
-                path="/"
-                element={token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />}
-              />
+            <ErrorBoundary>
+              <Suspense fallback={<Loading />}>
+                <Routes>
+                  {/* Define the root path to redirect to /dashboard if logged in, else /login */}
+                  <Route
+                    path="/"
+                    element={token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />}
+                  />
 
-              {/* Login route */}
-              <Route path="/login" element={<Login />} />
+                  {/* Login route */}
+                  <Route path="/login" element={<Login />} />
 
-              {/* Signup route */}
-              <Route path="/signup" element={<Signup />} />
+                  {/* Signup route */}
+                  <Route path="/signup" element={<Signup />} />
 
-              {/* Forgot Password route */}
-              <Route path="/forgot-password" element={<ForgotPassword />} />
+                  {/* Forgot Password route */}
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
 
-              {/* Reset Password route */}
-              <Route path="/reset-password/:token" element={<ResetPassword />} />
+                  {/* Reset Password route */}
+                  <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-              {/* Dashboard route (protected) */}
-              <Route
-                path="/dashboard"
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
+                  {/* Dashboard route (protected) */}
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
 
-              {/* Edit Profile route (protected) */}
-              <Route
-                path="/edit-profile"
-                element={
-                  <PrivateRoute>
-                    <EditProfile />
-                  </PrivateRoute>
-                }
-              />
+                  {/* Edit Profile route (protected) */}
+                  <Route
+                    path="/edit-profile"
+                    element={
+                      <PrivateRoute>
+                        <EditProfile />
+                      </PrivateRoute>
+                    }
+                  />
 
-              {/* Change Password route (protected) */}
-              <Route
-                path="/change-password"
-                element={
-                  <PrivateRoute>
-                    <ChangePassword />
-                  </PrivateRoute>
-                }
-              />
+                  {/* Change Password route (protected) */}
+                  <Route
+                    path="/change-password"
+                    element={
+                      <PrivateRoute>
+                        <ChangePassword />
+                      </PrivateRoute>
+                    }
+                  />
 
-              {/* Chat route (protected) */}
-              <Route
-                path="/chat/:conversationId"
-                element={
-                  <PrivateRoute>
-                    <Chat />
-                  </PrivateRoute>
-                }
-              />
+                  {/* Chat route (protected) */}
+                  <Route
+                    path="/chat/:conversationId"
+                    element={
+                      <PrivateRoute>
+                        <Chat />
+                      </PrivateRoute>
+                    }
+                  />
 
-              {/* Fallback route for unmatched paths */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Suspense>
+                  {/* Fallback route for unmatched paths */}
+                  <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
         </Router>
       </SocketProvider>
     </ThemeProvider>
