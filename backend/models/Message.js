@@ -19,6 +19,11 @@ const messageSchema = new mongoose.Schema({
     type: String, // Path to the uploaded image
     default: '',
   },
+  status: {
+    type: String,
+    enum: ['sent', 'delivered', 'read'],
+    default: 'sent',
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Message', messageSchema);

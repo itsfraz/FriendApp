@@ -80,6 +80,11 @@ const Chat = () => {
       const handleReceiveMessage = (message) => {
         if (currentChat?._id === message.conversationId) {
           setMessages((prev) => [...prev, message]);
+           // If we are in the chat room, mark as read immediately
+           socket.emit('mark-messages-read', { conversationId: message.conversationId, userId });
+        } else {
+           // If we are online but not in the chat, mark as delivered
+           socket.emit('message-delivered', { messageId: message._id });
         }
       };
 
@@ -95,14 +100,34 @@ const Chat = () => {
          }
       };
 
+      const handleMessageStatusUpdate = (updatedMessage) => {
+         if (currentChat?._id === updatedMessage.conversationId) {
+            setMessages((prev) => 
+               prev.map((msg) => msg._id === updatedMessage._id ? updatedMessage : msg)
+            );
+         }
+      };
+
+      const handleMessagesRead = ({ conversationId }) => {
+         if (currentChat?._id === conversationId) {
+            setMessages((prev) => 
+               prev.map((msg) => ({ ...msg, status: 'read' }))
+            );
+         }
+      };
+
       socket.on('receive-message', handleReceiveMessage);
       socket.on('typing', handleTyping);
       socket.on('stop-typing', handleStopTyping);
+      socket.on('message-status-update', handleMessageStatusUpdate);
+      socket.on('messages-read', handleMessagesRead);
 
       return () => {
         socket.off('receive-message', handleReceiveMessage);
         socket.off('typing', handleTyping);
         socket.off('stop-typing', handleStopTyping);
+        socket.off('message-status-update', handleMessageStatusUpdate);
+        socket.off('messages-read', handleMessagesRead);
       };
     }
   }, [socket, currentChat, userId]);
@@ -112,6 +137,11 @@ const Chat = () => {
       try {
         const res = await axios.get(`${API_URL}/api/messages/${currentChat?._id}`);
         setMessages(res.data);
+        
+        // Mark messages as read when entering the chat
+        if (socket && currentChat?._id) {
+           socket.emit('mark-messages-read', { conversationId: currentChat._id, userId });
+        }
       } catch (err) {
         console.log(err);
       }
@@ -120,7 +150,7 @@ const Chat = () => {
       getMessages();
       socket.emit('join-chat', currentChat._id);
     }
-  }, [currentChat, socket]);
+  }, [currentChat, socket, userId]);
 
   const handleTyping = () => {
     if (currentChat) {
@@ -187,20 +217,22 @@ const Chat = () => {
                    />
                    <div>
                      <h3 className="font-bold text-gray-800 text-lg">{currentFriend.name || currentFriend.username}</h3>
-                     <span className="text-sm text-green-500 flex items-center gap-1">
-                        <span className="w-2 h-2 bg-green-500 rounded-full"></span> Active Now
-                     </span>
+                     {isFriendTyping ? (
+                        <span className="text-sm text-blue-500 flex items-center gap-1 italic typing-indicator font-medium">
+                           Typing<span>.</span><span>.</span><span>.</span>
+                        </span>
+                     ) : (
+                        <span className="text-sm text-green-500 flex items-center gap-1">
+                           <span className="w-2 h-2 bg-green-500 rounded-full"></span> Active Now
+                        </span>
+                     )}
                    </div>
                  </>
                )}
             </div>
 
             <MessageList messages={messages} />
-            {isFriendTyping && (
-               <div className="px-4 py-2 text-sm text-gray-500 italic animate-pulse">
-                  {currentFriend?.name || 'Friend'} is typing...
-               </div>
-            )}
+
             <MessageInput handleSendMessage={handleSendMessage} onTyping={handleTyping} />
           </>
         ) : (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { API_URL } from '../../config';
 
 const MessageList = ({ messages }) => {
@@ -22,8 +23,12 @@ const MessageList = ({ messages }) => {
         });
 
         return (
-          <div
+          <motion.div
             key={index}
+            layout
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={`flex mb-2 ${isSender ? 'justify-end' : 'justify-start'}`}
           >
             <div
@@ -43,8 +48,19 @@ const MessageList = ({ messages }) => {
                 />
               )}
               {message.text && <p>{message.text}</p>}
+              <div className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${isSender ? 'text-blue-200' : 'text-gray-500'}`}>
+                <span>{new Date(message.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                {isSender && (
+                  <>
+                    {/* Status Checkmarks */}
+                    {message.status === 'sent' && <span>✓</span>}
+                    {message.status === 'delivered' && <span>✓✓</span>}
+                    {message.status === 'read' && <span className="text-white font-bold">✓✓</span>}
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>

@@ -162,6 +162,39 @@ io.on('connection', (socket) => {
     // (This part matches existing 'receive-message' for notifications, 
     // but usually notifications are separate if the user isn't locally in the room)
   });
+
+  // Mark messages as read
+  socket.on('mark-messages-read', async ({ conversationId, userId }) => {
+    try {
+      // Update all messages in this conversation sent by OTHER users to 'read'
+      await Message.updateMany(
+        { conversationId, sender: { $ne: userId }, status: { $ne: 'read' } },
+        { $set: { status: 'read' } }
+      );
+      
+      // Notify the sender(s) that their messages were read
+      // We emit to the room, so if the sender is there, they get the update
+      io.to(conversationId).emit('messages-read', { conversationId });
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  });
+
+  // Mark specific message as delivered
+  socket.on('message-delivered', async ({ messageId }) => {
+    try {
+      const message = await Message.findByIdAndUpdate(
+        messageId, 
+        { status: 'delivered' }, 
+        { new: true }
+      );
+      if (message) {
+        io.to(message.conversationId.toString()).emit('message-status-update', message);
+      }
+    } catch (error) {
+      console.error('Error marking message as delivered:', error);
+    }
+  });
 });
 
 // Chat Image Upload Route

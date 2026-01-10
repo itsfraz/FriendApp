@@ -1,26 +1,31 @@
 import React, { useContext, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import axios from "axios";
 import FriendsList from "./FriendList";
 import FriendRecommendations from "./FriendRecommendations";
 import SearchUsers from "./SearchUsers";
 import PendingFriendRequests from "./PendingFriendRequests";
 import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserProfile, logout } from "../../features/auth/authSlice";
+import { fetchFriends } from "../../features/friends/friendsSlice";
+import { addNotification, clearNotifications } from "../../features/notifications/notificationsSlice";
 import SocketContext from "../../context/SocketContext";
 import { useTheme } from "../../context/ThemeContext";
 import { API_URL } from '../../config';
 import echoLogo from '../../assets/echo_logo.png';
 
 function Dashboard() {
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
-  const [profilePicture, setProfilePicture] = useState("");
-  const [bio, setBio] = useState('');
-  const [work, setWork] = useState('');
-  const [location, setLocation] = useState('');
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { list: notifications } = useSelector((state) => state.notifications);
+
   const [requestSent, setRequestSent] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [friendsUpdated, setFriendsUpdated] = useState(false);
+  // friendsUpdated removed, we will rely on Redux updates or smart fetching
+  // For now keeping local state if strictly needed for other components not yet on redux, but FriendList will be updated.
+  // const [friendsUpdated, setFriendsUpdated] = useState(false); 
+  
   const [activeTab, setActiveTab] = useState("feed");
   const { theme, toggleTheme } = useTheme();
   
@@ -29,30 +34,10 @@ function Dashboard() {
   const { socket } = useContext(SocketContext);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(
-          `${API_URL}/user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-
-        setUsername(response.data.username);
-        setName(response.data.name);
-        setProfilePicture(response.data.profilePicture);
-        setBio(response.data.bio || '');
-        setWork(response.data.work || '');
-        setLocation(response.data.location || '');
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, [userId]);
+    if (userId) {
+      dispatch(fetchUserProfile(userId));
+    }
+  }, [userId, dispatch]);
 
   // ... (keep useEffect for socket logic) ...
 
@@ -65,40 +50,29 @@ function Dashboard() {
   useEffect(() => {
     if (socket) {
       socket.on("new-friend-request", (data) => {
-        setNotifications((prev) => [
-          {
+        dispatch(addNotification({
             type: "friend-request",
             message: data.message,
             fromUserId: data.fromUserId,
-            timestamp: new Date()
-          },
-          ...prev,
-        ]);
+        }));
       });
 
       socket.on("friend-request-accepted", (data) => {
-        setNotifications((prev) => [
-          {
+        dispatch(addNotification({
             type: "friend-request-accepted",
             message: data.message,
             toUserId: data.toUserId,
-            timestamp: new Date()
-          },
-            ...prev,
-        ]);
-        setFriendsUpdated(prev => !prev);
+        }));
+        // Ideally dispatch fetchFriends here if FriendsList is listening to store
+        // or re-fetch friend list
       });
 
       socket.on("receive-message", (data) => {
-         setNotifications((prev) => [
-            {
-               type: 'message',
-               message: `New message: ${data.text.substring(0, 30)}${data.text.length > 30 ? '...' : ''}`,
-               fromUserId: data.sender,
-               timestamp: new Date()
-            },
-            ...prev
-         ]);
+         dispatch(addNotification({
+            type: 'message',
+            message: `New message: ${data.text.substring(0, 30)}${data.text.length > 30 ? '...' : ''}`,
+            fromUserId: data.sender,
+         }));
       });
     }
 
@@ -114,8 +88,7 @@ function Dashboard() {
   // ... (keep handler functions) ...
 
   const handleSignOut = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    dispatch(logout());
     window.location.href = "/login";
   };
 
@@ -147,9 +120,9 @@ function Dashboard() {
   };
 
   return (
-    <div className={`min-h-screen font-sans pb-16 md:pb-0 transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-[#f0f2f5] text-black'}`}>
+    <div className={`min-h-screen font-sans pb-16 md:pb-0 transition-colors duration-300 ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900 text-white' : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-black'}`}>
       {/* Top Navigation Bar */}
-      <nav className={`px-4 py-2 shadow-sm sticky top-0 z-50 flex items-center justify-between h-16 transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+      <nav className={`px-4 py-2 shadow-sm sticky top-0 z-50 flex items-center justify-between h-16 transition-colors duration-300 backdrop-blur-md border-b border-white/10 ${theme === 'dark' ? 'bg-glass-dark text-white' : 'bg-glass-light/80 text-gray-800'}`}>
         {/* Logo Section */}
         {/* Logo Section - Hides text on small screens to save space for search */}
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
@@ -198,7 +171,7 @@ function Dashboard() {
                  <div className="p-3 border-b bg-gray-50 flex justify-between items-center">
                    <h3 className="font-bold text-gray-700">Notifications</h3>
                    {notifications.length > 0 && (
-                     <button onClick={() => setNotifications([])} className="text-xs text-blue-600 hover:text-blue-800">
+                     <button onClick={() => dispatch(clearNotifications())} className="text-xs text-blue-600 hover:text-blue-800">
                        Mark all as read
                      </button>
                    )}
@@ -230,36 +203,55 @@ function Dashboard() {
         </div>
       </nav>
 
-      <div className="max-w-[1600px] mx-auto pt-6 px-4 md:px-8 grid grid-cols-1 md:grid-cols-[280px_1fr_300px] gap-6">
+      <motion.div 
+        className="max-w-[1600px] mx-auto pt-6 px-4 md:px-8 grid grid-cols-1 md:grid-cols-[280px_1fr_300px] gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.2
+            }
+          }
+        }}
+      >
         
         {/* Left Sidebar - Navigation & Profile */}
-        <div className={`${activeTab === 'profile' ? 'block' : 'hidden'} md:block space-y-4`}>
+        <motion.div 
+          className={`${activeTab === 'profile' ? 'block' : 'hidden'} md:block space-y-4`}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+          }}
+        >
            {/* Profile Card */}
-           <div className={`rounded-xl shadow-sm p-4 hover:shadow-md transition ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+           <div className={`rounded-xl shadow-lg p-4 hover:shadow-xl transition backdrop-blur-md border border-white/20 ${theme === 'dark' ? 'bg-glass-dark text-white' : 'bg-glass-light text-gray-800'}`}>
               <div className="flex flex-col items-center">
                  <img
-                  src={profilePicture ? `${API_URL}/${profilePicture}` : "https://via.placeholder.com/80"}
+                  src={user?.profilePicture ? `${API_URL}/${user.profilePicture}` : "https://via.placeholder.com/80"}
                   alt="Profile"
                   className="w-20 h-20 rounded-full object-cover ring-4 ring-gray-100 mb-2"
                  />
-                 <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{name}</h2>
-                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>@{username}</p>
+                 <h2 className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>{user?.name}</h2>
+                 <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>@{user?.username}</p>
                  
                  {/* Bio Section */}
-                 {bio && <p className={`text-center text-sm mb-3 px-2 italic ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>"{bio}"</p>}
+                 {user?.bio && <p className={`text-center text-sm mb-3 px-2 italic ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>"{user.bio}"</p>}
                  
                  {/* Details */}
                  <div className="w-full space-y-2 mb-4">
-                    {work && (
+                    {user?.work && (
                        <div className={`flex items-center text-sm px-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                           <span className="mr-2">💼</span>
-                          <span>{work}</span>
+                          <span>{user.work}</span>
                        </div>
                     )}
-                    {location && (
+                    {user?.location && (
                        <div className={`flex items-center text-sm px-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                           <span className="mr-2">📍</span>
-                          <span>{location}</span>
+                          <span>{user.location}</span>
                        </div>
                     )}
                  </div>
@@ -284,43 +276,55 @@ function Dashboard() {
                  </div>
               </div>
            </div>
-        </div>
+        </motion.div>
 
         {/* Center Feed - Main Content */}
-        <div className={`${activeTab === 'feed' ? 'block' : 'hidden'} md:block space-y-6 pb-10`}>
+        <motion.div 
+          className={`${activeTab === 'feed' ? 'block' : 'hidden'} md:block space-y-6 pb-10`}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+          }}
+        >
            {/* Pending Requests */}
-           <div className={`rounded-xl shadow-sm p-4 md:p-6 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+           <div className={`rounded-xl shadow-lg p-4 md:p-6 backdrop-blur-md border border-white/20 ${theme === 'dark' ? 'bg-glass-dark' : 'bg-glass-light'}`}>
              <h3 className={`text-xl font-bold mb-4 border-b pb-2 ${theme === 'dark' ? 'text-white border-gray-700' : 'text-gray-800'}`}>Friend Requests</h3>
              <PendingFriendRequests 
                 requestSent={requestSent} 
-                onFriendAccepted={() => setFriendsUpdated(prev => !prev)} 
+                onFriendAccepted={() => dispatch(fetchFriends(userId))}  
              />
            </div>
 
            {/* Recommendations */}
-           <div className={`rounded-xl shadow-sm p-4 md:p-6 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+           <div className={`rounded-xl shadow-lg p-4 md:p-6 backdrop-blur-md border border-white/20 ${theme === 'dark' ? 'bg-glass-dark' : 'bg-glass-light'}`}>
              <h3 className={`text-xl font-bold mb-4 border-b pb-2 ${theme === 'dark' ? 'text-white border-gray-700' : 'text-gray-800'}`}>People You May Know</h3>
              <FriendRecommendations />
            </div>
-        </div>
+        </motion.div>
 
         {/* Right Sidebar - Contacts */}
-        <div className={`${activeTab === 'contacts' ? 'block' : 'hidden'} md:block`}>
+        <motion.div 
+          className={`${activeTab === 'contacts' ? 'block' : 'hidden'} md:block`}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+          }}
+        >
            <div className="sticky top-20">
-              <div className={`rounded-xl shadow-sm p-4 h-[calc(100vh-100px)] overflow-y-auto ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+              <div className={`rounded-xl shadow-lg p-4 h-[calc(100vh-100px)] overflow-y-auto backdrop-blur-md border border-white/20 ${theme === 'dark' ? 'bg-glass-dark text-white' : 'bg-glass-light text-gray-800'}`}>
                  <div className="flex items-center justify-between mb-4">
                     <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Contacts</h3>
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                  </div>
-                 <FriendsList refresh={friendsUpdated} />
+                 <FriendsList />
               </div>
            </div>
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
 
       {/* Mobile Bottom Navigation */}
-      <div className={`md:hidden fixed bottom-0 left-0 right-0 border-t flex justify-around items-center py-3 z-50 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 border-t flex justify-around items-center py-3 z-50 backdrop-blur-md ${theme === 'dark' ? 'bg-glass-dark border-white/10' : 'bg-glass-light/90 border-white/20'}`}>
         <button 
           onClick={() => setActiveTab('feed')}
           className={`flex flex-col items-center ${activeTab === 'feed' ? 'text-blue-600' : (theme === 'dark' ? 'text-gray-400' : 'text-gray-500')}`}
